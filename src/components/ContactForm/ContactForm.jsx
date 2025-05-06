@@ -1,40 +1,47 @@
+import { useDispatch } from "react-redux";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { nanoid } from "nanoid";
+import { addContact } from "../../redux/contactsSlice";
 import css from "./ContactForm.module.css";
 
-const ContactSchema = Yup.object().shape({
-  name: Yup.string().min(3).max(50).required("Required"),
-  number: Yup.string().min(3).max(50).required("Required"),
-});
+const ContactForm = () => {
+  const dispatch = useDispatch();
 
-function ContactForm({ onAdd }) {
+  const ContactSchema = Yup.object().shape({
+    name: Yup.string().min(3).max(50).required("Required"),
+    number: Yup.string().min(3).max(50).required("Required"),
+  });
+
+  const handleSubmit = (values, actions) => {
+    dispatch(addContact(values));
+    actions.resetForm();
+  };
+
   return (
     <Formik
       initialValues={{ name: "", number: "" }}
       validationSchema={ContactSchema}
-      onSubmit={(values, { resetForm }) => {
-        onAdd({ id: nanoid(), ...values });
-        resetForm();
-      }}
+      onSubmit={handleSubmit}
     >
       <Form className={css.form}>
         <label className={css.label}>
           Name
-          <Field className={css.input} type="text" name="name" />
-          <ErrorMessage className={css.error} name="name" component="div" />
+          <Field name="name" className={css.input} />
+          <ErrorMessage name="name" component="div" className={css.error} />
         </label>
+
         <label className={css.label}>
           Number
-          <Field className={css.input} type="text" name="number" />
-          <ErrorMessage className={css.error} name="number" component="div" />
+          <Field name="number" className={css.input} />
+          <ErrorMessage name="number" component="div" className={css.error} />
         </label>
-        <button className={css.button} type="submit">
+
+        <button type="submit" className={css.button}>
           Add contact
         </button>
       </Form>
     </Formik>
   );
-}
+};
 
 export default ContactForm;
